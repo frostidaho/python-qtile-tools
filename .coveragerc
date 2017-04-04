@@ -1,0 +1,16 @@
+[paths]
+source =
+   src/qtile_tools
+   */site-packages/qtile_tools
+
+[run]
+branch = true
+source =
+    qtile_tools
+    tests
+parallel = true
+
+[report]
+show_missing = true
+precision = 2
+omit = *migrations*
