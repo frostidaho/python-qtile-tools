@@ -1,20 +1,18 @@
 from collections import namedtuple as _namedtuple
 
 Geom = _namedtuple('Geom', ('x', 'y', 'width', 'height'))
-
-def new_geom(x, y, width, height):
-    _i = int
-    return Geom._make(_i(x) for x in (x, y, width, height))
-
-
 _GridName = _namedtuple('_GridName', ('i', 'j'))
 
 class _WinGeomMeta(type):
     def __new__(meta, name, bases, namespace):
         
         def newfn(name, i, j):
+            _int = int
+            make = Geom._make
             def fn(self):
-                return new_geom(self._xval(i), self._yval(j), self.width, self.height)
+                x, y = self._xval(i), self._yval(j)
+                width, height = self.width, self.height
+                return make(_int(x) for x in (x, y, width, height))
             fn.__name__ = name
             return fn
         
@@ -85,7 +83,7 @@ class WinGeom(object, metaclass=_WinGeomMeta):
 
 
 if __name__ == '__main__':
-    mgeom = new_geom(0,0, 1600, 900)
+    mgeom = Geom(0, 0, 1600, 900)
     # x = WinGeom(mgeom, 100, 100)
     dirs = 'northwest north northeast west center east southwest south southeast'.split()
     geoms = [
