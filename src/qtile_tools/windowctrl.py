@@ -63,7 +63,7 @@ class WinGeom(object, metaclass=_WinGeomMeta):
         if position == 0:
             return _screen_geom.x
         elif position == 1:
-            mon_ctr_x = (_screen_geom.x + _screen_geom.width) // 2
+            mon_ctr_x = _screen_geom.x + (_screen_geom.width // 2)
             return mon_ctr_x - (self.width // 2)
         elif position == 2:
             return _screen_geom.x + _screen_geom.width - self.width - (2 * self.border_width)
