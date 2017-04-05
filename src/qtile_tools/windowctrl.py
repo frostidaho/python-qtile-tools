@@ -115,9 +115,11 @@ class MoveWindow(metaclass=_MoveGeomMeta):
         return fn
 
     def __init__(self, window, *, width_frac=None, height_frac=None,
-                 aspect_ratio=None, border_width=_BORDER_WIDTH):
+                 aspect_ratio=None, border_width=None):
         if width_frac and height_frac:
             raise ValueError('Only give either width_frac or height_frac')
+        if border_width is None:
+            border_width = window.borderwidth
         grp = window.group
         screen = grp.screen or grp.qtile.currentScreen
         screen = Geom(screen.x, screen.y, screen.width, screen.height)
