@@ -2,40 +2,44 @@ from collections import namedtuple as _namedtuple
 
 
 Geom = _namedtuple('Geom', ('x', 'y', 'width', 'height'))
-_GridName = _namedtuple('_GridName', ('i', 'j'))
 _BORDER_WIDTH = 4
 
+_positions = {
+    'northwest': (0, 0),
+    'north': (1, 0),
+    'northeast': (2, 0),
+    'west': (0, 1),
+    'center': (1, 1),
+    'east': (2, 1),
+    'southwest': (0, 2),
+    'south': (1, 2),
+    'southeast': (2, 2),
+}
 
 class _MoveGeomMeta(type):
     def __new__(meta, name, bases, namespace):
-        
-        def newfn(name, i, j):
-            _int = int
-            make = Geom._make
-            def fn(self):
-                x, y = self._xval(i), self._yval(j)
-                width, height = self.width, self.height
-                return make(_int(x) for x in (x, y, width, height))
-            fn.__name__ = name
-            return fn
-        
-        _isinstance = isinstance
-        for k,v in namespace.items():
-            if _isinstance(v, _GridName):
-                namespace[k] = property(newfn(k, *v))
+        factory = namespace['_factory']
+        positions = namespace['_positions']
+        for k,v in positions.items():
+            # namespace[k] = property(factory(k, v))
+            namespace[k] = factory(k, v)
+        namespace['_factory'] = staticmethod(factory)
         return super().__new__(meta, name, bases, namespace)
 
 
 class MoveGeom(object, metaclass=_MoveGeomMeta):
-    center    = _GridName(1, 1)
-    northwest = _GridName(0, 0)
-    north     = _GridName(1, 0)
-    northeast = _GridName(2, 0)
-    west      = _GridName(0, 1)
-    east      = _GridName(2, 1)
-    southwest = _GridName(0, 2)
-    south     = _GridName(1, 2)
-    southeast = _GridName(2, 2)
+    _positions = _positions
+    def _factory(key, value):
+        name = key
+        i, j = value
+        _int = int
+        make = Geom._make
+        def fn(self):
+            x, y = self._xval(i), self._yval(j)
+            width, height = self.width, self.height
+            return make(_int(x) for x in (x, y, width, height))
+        fn.__name__ = name
+        return property(fn)
 
     def __init__(self, container_geom, width, height, border_width=_BORDER_WIDTH):
         self.border_width = border_width
@@ -98,29 +102,42 @@ def _float_move(window, geometry, above=True):
     return window
 
 
-def float_window(window, *, width_frac=None, height_frac=None,
+
+class MoveWindow(metaclass=_MoveGeomMeta):
+    _positions = _positions
+    def _factory(name, value):
+        float_move = _float_move
+        def fn(self, above=True):
+            geom = getattr(self.move_geom, name)
+            win = self.window
+            return float_move(win, geom, above)
+        fn.__name__ = name
+        return fn
+
+    def __init__(self, window, *, width_frac=None, height_frac=None,
                  aspect_ratio=None, border_width=_BORDER_WIDTH):
-    if width_frac and height_frac:
-        raise ValueError('Only give either width_frac or height_frac')
-    grp = window.group
-    screen = grp.screen or grp.qtile.currentScreen
-    screen = Geom(screen.x, screen.y, screen.width, screen.height)
-    if width_frac:
-        move_geom = MoveGeom.from_width_fraction(
-            container_geom=screen,
-            width_frac=width_frac,
-            aspect_ratio=aspect_ratio,
-            border_width=border_width,
-        )
-    else:
-        move_geom = MoveGeom.from_height_fraction(
-            container_geom=screen,
-            height_frac=height_frac,
-            aspect_ratio=aspect_ratio,
-            border_width=border_width,
-        )
-    
-    
+        if width_frac and height_frac:
+            raise ValueError('Only give either width_frac or height_frac')
+        grp = window.group
+        screen = grp.screen or grp.qtile.currentScreen
+        screen = Geom(screen.x, screen.y, screen.width, screen.height)
+        if width_frac:
+            move_geom = MoveGeom.from_width_fraction(
+                container_geom=screen,
+                width_frac=width_frac,
+                aspect_ratio=aspect_ratio,
+                border_width=border_width,
+            )
+        else:
+            move_geom = MoveGeom.from_height_fraction(
+                container_geom=screen,
+                height_frac=height_frac,
+                aspect_ratio=aspect_ratio,
+                border_width=border_width,
+            )
+        self.move_geom = move_geom
+        self.window = window
+
 
 if __name__ == '__main__':
     mgeom = Geom(0, 0, 1600, 900)
@@ -134,3 +151,21 @@ if __name__ == '__main__':
         print()
         for d in dirs:
             print(d, getattr(wg, d), sep=' -> ')
+
+
+    class FakeWindow:
+        class group:
+            screen = Geom(0, 0, 1600, 900)
+
+        def tweak_float(self, *args, **kwargs):
+            print('tweak_float', args, kwargs, sep=' -> ')
+
+        class window:
+            @staticmethod
+            def configure(*args, **kwargs):
+                print('window.configure', args, kwargs, sep=' -> ')
+
+    fakewin = FakeWindow()
+    x=MoveWindow(fakewin, width_frac=0.3)
+    print(x.center())
+
