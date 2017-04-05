@@ -37,50 +37,50 @@ class WinGeom(object, metaclass=_WinGeomMeta):
     south     = _GridName(1, 2)
     southeast = _GridName(2, 2)
 
-    def __init__(self, screen_geom, width, height, border_width=_BORDER_WIDTH):
+    def __init__(self, container_geom, width, height, border_width=_BORDER_WIDTH):
         self.border_width = border_width
-        self._screen_geom = screen_geom
+        self._container_geom = container_geom
         self.width = width
         self.height = height
 
     @classmethod
-    def from_width_fraction(cls, screen_geom, width_frac=0.3, aspect_ratio=None, border_width=_BORDER_WIDTH):
+    def from_width_fraction(cls, container_geom, width_frac=0.3, aspect_ratio=None, border_width=_BORDER_WIDTH):
         if aspect_ratio is None:
-            aspect_ratio = screen_geom.width / screen_geom.height
-        width = screen_geom.width * width_frac
+            aspect_ratio = container_geom.width / container_geom.height
+        width = container_geom.width * width_frac
         height = width / aspect_ratio
-        return cls(screen_geom, width, height, border_width)
+        return cls(container_geom, width, height, border_width)
 
     @classmethod
-    def from_height_fraction(cls, screen_geom, height_frac=0.5, aspect_ratio=None, border_width=_BORDER_WIDTH):
+    def from_height_fraction(cls, container_geom, height_frac=0.5, aspect_ratio=None, border_width=_BORDER_WIDTH):
         if aspect_ratio is None:
-            aspect_ratio = screen_geom.width / screen_geom.height
-        height = screen_geom.height * height_frac
+            aspect_ratio = container_geom.width / container_geom.height
+        height = container_geom.height * height_frac
         width = height * aspect_ratio
-        return cls(screen_geom, width, height, border_width)
+        return cls(container_geom, width, height, border_width)
 
     def _xval(self, position):
         "pos = 0 on left, 1 on middle, or 2 on right"
-        _screen_geom = self._screen_geom
+        _container_geom = self._container_geom
         if position == 0:
-            return _screen_geom.x
+            return _container_geom.x
         elif position == 1:
-            mon_ctr_x = _screen_geom.x + (_screen_geom.width // 2)
+            mon_ctr_x = _container_geom.x + (_container_geom.width // 2)
             return mon_ctr_x - (self.width // 2)
         elif position == 2:
-            return _screen_geom.x + _screen_geom.width - self.width - (2 * self.border_width)
+            return _container_geom.x + _container_geom.width - self.width - (2 * self.border_width)
         raise ValueError('position must be 0, 1, or 2')
 
     def _yval(self, position):
         "pos = 0, 1 or 2"
-        _screen_geom = self._screen_geom
+        _container_geom = self._container_geom
         if position == 0:
-            return _screen_geom.y
+            return _container_geom.y
         elif position == 1:
-            mon_ctr_y = (_screen_geom.y + _screen_geom.height) // 2
+            mon_ctr_y = (_container_geom.y + _container_geom.height) // 2
             return mon_ctr_y - (self.height // 2)
         elif position == 2:
-            return _screen_geom.height - self.height - (2 * self.border_width)
+            return _container_geom.height - self.height - (2 * self.border_width)
         raise ValueError('position must be 0, 1, or 2')
 
 
