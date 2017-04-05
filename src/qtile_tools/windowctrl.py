@@ -6,7 +6,7 @@ _GridName = _namedtuple('_GridName', ('i', 'j'))
 _BORDER_WIDTH = 4
 
 
-class _WinGeomMeta(type):
+class _MoveGeomMeta(type):
     def __new__(meta, name, bases, namespace):
         
         def newfn(name, i, j):
@@ -26,7 +26,7 @@ class _WinGeomMeta(type):
         return super().__new__(meta, name, bases, namespace)
 
 
-class WinGeom(object, metaclass=_WinGeomMeta):
+class MoveGeom(object, metaclass=_MoveGeomMeta):
     center    = _GridName(1, 1)
     northwest = _GridName(0, 0)
     north     = _GridName(1, 0)
@@ -88,9 +88,9 @@ if __name__ == '__main__':
     mgeom = Geom(0, 0, 1600, 900)
     dirs = 'northwest north northeast west center east southwest south southeast'.split()
     geoms = [
-        WinGeom(mgeom, 100, 100),
-        WinGeom.from_width_fraction(mgeom),
-        WinGeom.from_height_fraction(mgeom),
+        MoveGeom(mgeom, 100, 100),
+        MoveGeom.from_width_fraction(mgeom),
+        MoveGeom.from_height_fraction(mgeom),
     ]
     for wg in geoms:
         print()
