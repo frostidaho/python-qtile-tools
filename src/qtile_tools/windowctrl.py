@@ -72,7 +72,7 @@ class WinGeom(object, metaclass=_WinGeomMeta):
         raise ValueError('position must be 0, 1, or 2')
 
     def _yval(self, position):
-        "pos = 0, 1 or 2"
+        "pos = 0 on top, 1 in the middle, or 2 on bottom"
         _container_geom = self._container_geom
         if position == 0:
             return _container_geom.y
