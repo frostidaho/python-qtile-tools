@@ -84,6 +84,44 @@ class MoveGeom(object, metaclass=_MoveGeomMeta):
         raise ValueError('position must be 0, 1, or 2')
 
 
+def _float_move(window, geometry, above=True):
+    STACKMODE_ABOVE = 0
+    window.floating = True
+    window.tweak_float(
+        x=geometry.x,
+        y=geometry.y,
+        w=geometry.width,
+        h=geometry.height,
+    )
+    if above:
+        window.window.configure(stackmode=STACKMODE_ABOVE)
+    return window
+
+
+def float_window(window, *, width_frac=None, height_frac=None,
+                 aspect_ratio=None, border_width=_BORDER_WIDTH):
+    if width_frac and height_frac:
+        raise ValueError('Only give either width_frac or height_frac')
+    grp = window.group
+    screen = grp.screen or grp.qtile.currentScreen
+    screen = Geom(screen.x, screen.y, screen.width, screen.height)
+    if width_frac:
+        move_geom = MoveGeom.from_width_fraction(
+            container_geom=screen,
+            width_frac=width_frac,
+            aspect_ratio=aspect_ratio,
+            border_width=border_width,
+        )
+    else:
+        move_geom = MoveGeom.from_height_fraction(
+            container_geom=screen,
+            height_frac=height_frac,
+            aspect_ratio=aspect_ratio,
+            border_width=border_width,
+        )
+    
+    
+
 if __name__ == '__main__':
     mgeom = Geom(0, 0, 1600, 900)
     dirs = 'northwest north northeast west center east southwest south southeast'.split()
