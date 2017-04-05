@@ -1,7 +1,10 @@
 from collections import namedtuple as _namedtuple
 
+
 Geom = _namedtuple('Geom', ('x', 'y', 'width', 'height'))
 _GridName = _namedtuple('_GridName', ('i', 'j'))
+_BORDER_WIDTH = 4
+
 
 class _WinGeomMeta(type):
     def __new__(meta, name, bases, namespace):
@@ -22,17 +25,16 @@ class _WinGeomMeta(type):
                 namespace[k] = property(newfn(k, *v))
         return super().__new__(meta, name, bases, namespace)
 
-_BORDER_WIDTH = 4
 
 class WinGeom(object, metaclass=_WinGeomMeta):
-    center = _GridName(1, 1)
+    center    = _GridName(1, 1)
     northwest = _GridName(0, 0)
-    north = _GridName(1, 0)
+    north     = _GridName(1, 0)
     northeast = _GridName(2, 0)
-    west = _GridName(0, 1)
-    east = _GridName(2, 1)
+    west      = _GridName(0, 1)
+    east      = _GridName(2, 1)
     southwest = _GridName(0, 2)
-    south = _GridName(1, 2)
+    south     = _GridName(1, 2)
     southeast = _GridName(2, 2)
 
     def __init__(self, screen_geom, width, height, border_width=_BORDER_WIDTH):
@@ -84,7 +86,6 @@ class WinGeom(object, metaclass=_WinGeomMeta):
 
 if __name__ == '__main__':
     mgeom = Geom(0, 0, 1600, 900)
-    # x = WinGeom(mgeom, 100, 100)
     dirs = 'northwest north northeast west center east southwest south southeast'.split()
     geoms = [
         WinGeom(mgeom, 100, 100),
